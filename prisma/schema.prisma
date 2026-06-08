@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generate/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String?
+  profilePicture  Json @default("[]") 
+  role      String @default("user")
+  isActive  Boolean  @default(true)
+  emailVerified Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  blogs     Blog[]
+  comments Comment[]
+  likes Like[]
+  bookmark Bookmark[]
+  interactions BlogPostInteraction[]
+  outstandingTokens OutstandingToken[]
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  blogs       Blog[]
+}
+
+model Tag {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  blogs       Blog[]
+}
+
+model Blog {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  images      Json      @default("[]")
+  published   Boolean   @default(false)
+  authorId    String?
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  author      User?     @relation(fields: [authorId], references: [id])
+  tags        Tag[]
+  comments Comment[]
+  likes Like[]
+  interactions BlogPostInteraction[]
+  bookmark Bookmark[]
+  summary BlogSummary?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model BlogPostInteraction {
+  id   String  @id   @default(uuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  blogId String
+  blog  Blog  @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+
+  type  String  @default("comments")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  blogId    String?
+  blog      Blog?     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+
+  @@index([blogId])
+  @@index([authorId])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  blogId    String
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId])
+  @@index([blogId])
+}
+
+model Bookmark {
+  id      String @id @default(uuid())
+  createdAt    DateTime @default(now())
+
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  blogId    String
+  blog      Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId])
+  @@index([blogId])
+}
+
+model OutstandingToken {
+  id  String @id @default(uuid())
+
+  userId String
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime 
+
+  jti String
+  token String
+
+  blacklistTokens BlacklistedToken[]
+
+}
+
+model BlacklistedToken {
+  id String @id @default(uuid())
+
+  tokenId String
+  token OutstandingToken @relation(fields:[tokenId], references: [id], onDelete:Cascade)
+
+  blacklistedAt DateTime @default(now())
+}
+
+model BlogSummary {
+  id String @id @default(uuid())
+
+  blogId String @unique
+  blog Blog @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  summary Json @default("[]")
+  createdAt DateTime @default(now())
+}
+
