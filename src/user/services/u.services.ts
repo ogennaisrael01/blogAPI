@@ -1,6 +1,7 @@
 import bcrypt  from "bcryptjs";
 import { prisma } from "../../prisma-client";
 import pkg from 'jsonwebtoken';
+import { User } from "../../../generate/prisma/browser";
 
 const { sign, verify } = pkg 
 
@@ -12,21 +13,8 @@ class UserService {
         this.secretKey = process.env.JWT_SECRET_KEY || "secret_key"
         this.jwtExpiryTime = process.env.JWT_EXPIRY_TIME || "7d"
     }
-
-    async verifyToken (token: string){
-        return verify( token, this.secretKey)
-    }
-
     async getUser (email: string){
         return await prisma.user.findUnique({where: {email, isActive: true}})
-    }
-
-    async accessToken (email: string, userId: string){
-        if (!this.secretKey){
-            throw new Error("secret key is not present")
-        }
-        const token = sign({email, userId}, this.secretKey, {expiresIn: this.jwtExpiryTime, })
-        return token
     }
     async setPassword (userPassword: string) {
         const saltRounds = Number(String(process.env.SALT)) || 10;
@@ -36,6 +24,14 @@ class UserService {
 
     async checkPassword (password: string, hashedPassword: any){
         return await bcrypt.compare(password, hashedPassword)
+    }
+
+    async changePassword(password: string, user: User){
+        const passwordHash = await this.setPassword(password)
+        await prisma.user.update({
+            where: {id: user.id},
+            data: {password: passwordHash}
+        })
     }
 
     async createUser (email: string, password: string, fullName: string | null) {
@@ -50,6 +46,19 @@ class UserService {
         })
         return newUser
     }
+
+    async verifyUser(user: any){
+        try{
+            await prisma.user.update({
+                where: {id: user.id},
+                data: {emailVerified: true, isActive: true, verifiedAt: new Date()}
+            })
+        }
+        catch (err: any){
+            throw new Error(err.message)
+        }
+    }
+
 
 } 
 

@@ -28,7 +28,10 @@ export class JWTAuthentication {
         const userId = validatedToken?.userId
         try{
             const user = await prisma.user.findUnique({where: {id: userId}})
-            if (!user?.isActive){
+            if (!user){
+                throw new Error("User Not Found")
+            }
+            if (!user.isActive){
                 throw new Error("Your account is not active to receive connections")
             }
             if(!user.emailVerified){

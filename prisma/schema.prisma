@@ -21,6 +21,7 @@ model User {
   role      String @default("user")
   isActive  Boolean  @default(true)
   emailVerified Boolean @default(false)
+  verifiedAt DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   blogs     Blog[]
@@ -29,6 +30,7 @@ model User {
   bookmark Bookmark[]
   interactions BlogPostInteraction[]
   outstandingTokens OutstandingToken[]
+  otp OneTimePassword[]
 }
 
 model Category {
@@ -168,3 +170,16 @@ model BlogSummary {
   createdAt DateTime @default(now())
 }
 
+model OneTimePassword {
+  id String @id @unique @default(uuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime 
+  isUsed Boolean @default(false)
+  
+  code String @unique
+
+}

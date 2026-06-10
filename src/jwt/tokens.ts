@@ -69,9 +69,8 @@ export class BlackListToken {
         const blacklist = await prisma.blacklistedToken.findFirst({
             where: { token: { jti: jti}}
         })
-        if (blacklist){
-            throw new Error("Jwt already blacklisted")
-        }
+        const isBlacklisted = blacklist ? true : false
+        return isBlacklisted
     }
 
     async blacklist (token: string){
@@ -93,6 +92,19 @@ export class BlackListToken {
             data: {tokenId: outstandingToken.id}
         })
     }
+
+    async blackListForUser(user: User){
+        const outstandingTokens = await prisma.outstandingToken.findMany({where: {userId: user.id}})
+        try{
+            const blackList = outstandingTokens.map(async (token) => {
+                const isBlackListed = token.token ? await prisma.blacklistedToken.create({data: { tokenId: token.id}}) : false
+                return isBlackListed
+            })
+        }
+        catch (err: any){
+            throw new Error(err.message)
+        }
+    }
 }
 
 export const issueTokens = async (user: User) => {
@@ -100,6 +112,7 @@ export const issueTokens = async (user: User) => {
     const refreshToken = await new RefreshToken("refreshToken", "10d").forUser(user)
     return {
         accessToken: accessToken,
-        refreshToken: refreshToken
+        refreshToken: refreshToken,
+        tokenType: "Bearer"
     }
 }

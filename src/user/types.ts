@@ -9,3 +9,9 @@ export const Role = Object.freeze({
     USER: "user",
     ADMIN: "admin"
 })
+
+export interface Tokens {
+    accessToken: string;
+    refreshToken: string;
+    tokenType?: string;
+}
