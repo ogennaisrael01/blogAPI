@@ -37,6 +37,6 @@ router.get("/blogs/:blogId/comments/:commentId/replies", blogIdRequired, comment
 
 //bookmarks 
 router.post("/blogs/:blogId/bookmark", blogIdRequired, checkAuth, bookmarkPost)
-router.post("/blogs/:blogId/bookmark/:bookmarkId", blogIdRequired, checkAuth, removeBookmark)
+router.delete("/blogs/:blogId/bookmark/:bookmarkId", blogIdRequired, checkAuth, removeBookmark)
 router.delete("/blogs/bookmarks", checkAuth, clearBookmark)
 router.get("/blogs/bookmarks", checkAuth, listBookmarks)
