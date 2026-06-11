@@ -7,6 +7,7 @@ import { User } from "../../../generate/prisma/client";
 import { Tag } from "../../../generate/prisma/browser";
 import { blogInteractionTypes } from "../types/blog.types";
 import { aiService } from "../services/AIService";
+import { taskQueue } from "../../queue/queue";
 
 
 export const create = async (req: Request, res: Response) => {
@@ -42,6 +43,15 @@ export const create = async (req: Request, res: Response) => {
     }
     try{
         const newPost = await blogService.createBlog(result.data, user, images, category, tags)
+        if (newPost.authorId){
+            const subscribers = await prisma.newsLetter.findMany({
+                where: {ownerId: newPost.authorId}, 
+                select: {subscriber: { select: { email: true}}}
+            })
+            const subscribersEmails = subscribers.map((subscriber) => subscriber.subscriber.email)
+            const data = {blogPostId: newPost.id, authorId: newPost.authorId, emails: subscribersEmails}
+            await taskQueue.add("newsLetterEmail", data)
+        }
         return res.status(201).json({errors: null, details: newPost})
     }
     catch (err: any){

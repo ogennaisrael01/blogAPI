@@ -4,6 +4,7 @@ import "dotenv/config";
 import { router as blogRouter } from "./blog/apis/blog.route";
 import { userRouter } from "./user/api/u.routes";
 import { router as categoriesRouter } from "./blog/apis/categories";
+import { router as newsLetterRouter } from "./newsletter/api/routes"
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import "./queue/events";
@@ -24,6 +25,7 @@ app.use("/api", blogRouter)
 // app.use("/api", commentRouter)
 app.use("/api", userRouter)
 app.use("/api", categoriesRouter)
+app.use("/api", newsLetterRouter)
 
 export const server = createServer(app)
 export const io = new Server(server, {

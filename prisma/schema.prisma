@@ -24,13 +24,21 @@ model User {
   verifiedAt DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   blogs     Blog[]
   comments Comment[]
   likes Like[]
   bookmark Bookmark[]
+
   interactions BlogPostInteraction[]
   outstandingTokens OutstandingToken[]
   otp OneTimePassword[]
+
+  ownerletters NewsLetter[] @relation("NewsLetterOwner")
+  subscriberletters NewsLetter[] @relation("NewsLetterSubscriber")
+  
+  notificationOwners Notification[] @relation("NotificationOwner")
+  notificationsenders Notification[] @relation("NotificationSender")
 }
 
 model Category {
@@ -181,5 +189,35 @@ model OneTimePassword {
   isUsed Boolean @default(false)
   
   code String @unique
+}
 
+model NewsLetter {
+  id String @id @unique @default(uuid())
+
+  ownerId String
+  owner User @relation("NewsLetterOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  subscriberId String 
+  subscriber User @relation("NewsLetterSubscriber", fields: [subscriberId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@unique([ownerId, subscriberId])
+  @@index([ownerId, subscriberId])
+}
+
+model Notification {
+  id String @id @unique @default(uuid())
+
+  ownerId String
+  owner User @relation("NotificationOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  senderId String?
+  sender User? @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+
+  event String
+  message String?
+
+  createdAt DateTime @default(now())
+  @@index([ownerId, event, senderId, createdAt])
 }

@@ -16,8 +16,9 @@ export interface OutEvent {
 
 export const Events = Object.freeze({
     SYNC_REQUEST: "sync_request",
-    LIKE: "like",
+    Like: "like",
     Comment: "comment",
-    BookMark: "bookmark"
+    BookMark: "bookmark",
+    NewsLetter: "newsLetter"
 })
 

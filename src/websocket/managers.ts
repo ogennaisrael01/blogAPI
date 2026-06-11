@@ -2,9 +2,9 @@ import { prisma } from "../prisma-client"
 
 export const likeManager = async ( userId: string, blogId: string) => {
     try{
-        const user = await prisma.user.findUnique({where: {id: userId}})
-        const blog = await prisma.blog.findUnique({where: { id: blogId}, include: {author: true}})
-        const authorId = blog?.author?.id
+        const user = await prisma.user.findFirst({where: {id: userId}, select: { fullName: true, id: true}})
+        const blog = await prisma.blog.findFirst({where: { id: blogId}, select: { authorId: true, id: true}})
+        const authorId = blog?.authorId
         return {
             authorId: authorId,
             likeFullName: user?.fullName, 
@@ -16,11 +16,13 @@ export const likeManager = async ( userId: string, blogId: string) => {
 
 }
 
-export const commentManager = async(commentId: string, userId: string) => {
+export const commentManager = async(blogId: string, userId: string) => {
     try{
-        const user = await prisma.user.findUnique({where: {id: userId}})
-        const comment = await prisma.comment.findUnique({where: {id: commentId}, include: { blog: { include: {author: true}}}})
-        const blogAuthorId = comment?.blog?.authorId
+        const user = await prisma.user.findFirst({where: {id: userId}, select: {id: true, fullName: true}})
+        const blog = await prisma.blog.findFirst({
+            where: {id: blogId}, select: {authorId: true, id: true}
+            })
+        const blogAuthorId = blog?.authorId
         return {
             authorId: blogAuthorId,
             commentedBy: user?.fullName

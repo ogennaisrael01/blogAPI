@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, profilePicture, refreshToken, register, userProfile, sendVerificationEmail, verifyEmail, logout, passwordReset, passwordResetConfirm } from "../ctl/u.controller";
+import { login, profilePicture, refreshToken, register, userProfile, sendVerificationEmail, verifyEmail, logout, passwordReset, passwordResetConfirm, notifications } from "../ctl/u.controller";
 import { upload } from "../../blog/cloudinaryConfig";
 import { checkAuth, checkTokenBlackList } from "../../middlewares/auth";
 
@@ -16,3 +16,5 @@ userRouter.post("/verify-email", verifyEmail)
 userRouter.post("/logout", checkAuth, logout)
 userRouter.post("/password-reset", passwordReset)
 userRouter.post("/password-reset-confirm", passwordResetConfirm)
+
+userRouter.get("/notifications", checkAuth, notifications)

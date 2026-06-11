@@ -7,11 +7,6 @@ import { prisma } from "../../prisma-client";
 import { BlackListToken, issueTokens } from "../../jwt/tokens";
 import { Tokens } from "../types";
 import { taskQueue } from "../../queue/queue";
-import { id } from "zod/v4/locales";
-import { get } from "node:http";
-import { CommentScalarFieldEnum } from "../../../generate/prisma/internal/prismaNamespace";
-import { truncate } from "node:fs/promises";
-
 
 export const register = async (req: Request, res: Response) => {
     const result = userSchema.safeParse(req.body)
@@ -248,6 +243,20 @@ export const sendVerificationEmail = async(req: Request, res: Response) => {
         return res.status(500).json({errors: err.message})
     }
 
+}
+
+export const notifications = async (req: Request, res: Response) => {
+    const userId = req.user.id  
+    try{
+        const notifications = await prisma.notification.findMany({
+            where: {ownerId: userId}, include: {sender: {select: {fullName: true, profilePicture: true, id: true}}}
+        })
+
+        return res.status(200).json({result: notifications})
+    }
+    catch (err: any){
+        return res.status(500).json({errors: err.message})
+    }
 }
 
 async function createOtp(code: string, user: User){
