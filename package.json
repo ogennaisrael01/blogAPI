@@ -7,7 +7,7 @@
   "scripts": {
     "build-docs": "tsx swagger",
     "dev": "npm run build-docs && ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "npx prisma generate && tsc",
+    "build": "npx prisma generate && npm install --save-dev @types/swagger-ui-express @types/express && tsc",
     "start": "node dist/src/index.js"
   },
   "author": "Ogenna Israel",
