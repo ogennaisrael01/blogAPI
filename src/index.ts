@@ -46,7 +46,7 @@ if (fs.existsSync(swaggerOutputPath)){
 function startServer () {
     const port = Number(process.env.PORT) || 3000
     const hostName = process.env.HOST_NAME || "localhost"
-    server.listen(port, hostName, () => {
+    server.listen(port, () => {
         console.log(`Server Runnig On Port: ${port}`)
     })
 }
