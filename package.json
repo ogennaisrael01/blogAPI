@@ -2,12 +2,12 @@
   "name": "blogapi",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "type": "commonjs",
   "scripts": {
     "build-docs": "tsx swagger",
     "dev": "npm run build-docs && ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "npx prisma generate && npm install --save-dev @types/swagger-ui-express @types/express && tsc",
+    "build": "npx prisma generate && npm install --save-dev @types/swagger-ui-express @types/express && tsc && npm run build-docs",
     "start": "node dist/src/index.js"
   },
   "author": "Ogenna Israel",

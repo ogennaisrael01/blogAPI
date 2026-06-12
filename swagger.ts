@@ -6,7 +6,7 @@ const doc = {
     title: 'Automatically Documented API For Blogging Application',
     version: '1.0.0'
   },
-  host: `${process.env.HOST_NAME}:${process.env.PORT}`,
+  host: `0.0.0.0:${process.env.PORT}`,
   schemes: [process.env.NODE_ENV === "development" ? "http" :  "https"]
 };
 
